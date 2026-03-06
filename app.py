@@ -6,46 +6,59 @@ import numpy as np
 import google.generativeai as genai
 import os
 
-# --- STAGE 6: Streamlit Interface & Glass UI Setup ---
+# --- STAGE 6: Streamlit Interface & Safe Glass UI Setup ---
 st.set_page_config(page_title="Pro Crypto Dashboard", layout="wide", initial_sidebar_state="expanded")
 
-# Custom CSS for HIGH VISIBILITY Glassmorphism 
+# Custom CSS for SAFE HIGH-VISIBILITY Glassmorphism 
 st.markdown("""
 <style>
-    /* Main background: Clean white/light gray gradient */
+    /* Clean white/light gray background */
     .stApp {
         background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     }
     
-    /* Force base text colors to be dark so they don't turn invisible in Dark Mode */
-    html, body, [class*="st-"] {
-        color: #1e293b !important; 
-    }
-    
-    /* Glassmorphism effect for sidebar: More opaque for readable text */
+    /* Glassmorphism sidebar - frosted but readable */
     [data-testid="stSidebar"] {
-        background: rgba(255, 255, 255, 0.85) !important;
-        backdrop-filter: blur(12px) !important;
-        -webkit-backdrop-filter: blur(12px) !important;
-        border-right: 1px solid rgba(226, 232, 240, 0.8);
+        background: rgba(255, 255, 255, 0.65) !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.5);
     }
     
-    /* Title and Header styling: Deep Blue */
+    /* Explicitly make standard text dark */
+    p, span, div, label {
+        color: #1e293b !important;
+    }
+    
+    /* Make Headers Deep Blue */
     h1, h2, h3 {
         color: #1e3a8a !important; 
         font-weight: 600 !important;
     }
     
-    /* Metric boxes readability */
+    /* Fix Input Boxes (Like the Chatbot input and Dropdowns) so you can see what you type */
+    .stTextInput input, .stSelectbox div[data-baseweb="select"], .stChatInput textarea {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 8px !important;
+    }
+    
+    /* Fix Chat Messages background so AI responses are readable */
+    [data-testid="stChatMessage"] {
+        background-color: rgba(255, 255, 255, 0.7);
+        border-radius: 10px;
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+    
+    /* Fix Metric Values (The big numbers) */
     [data-testid="stMetricValue"] {
         color: #0f172a !important; 
         font-weight: 700 !important;
     }
 </style>
 """, unsafe_allow_html=True)
-
-st.title("💠 Pro Crypto Volatility Visualizer")
-st.markdown("Analyze market swings with professional tools and AI insights.")
 
 # --- SIDEBAR CONTROLS ---
 st.sidebar.header("🎛️ Dashboard Controls")
