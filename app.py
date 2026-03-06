@@ -9,10 +9,10 @@ import os
 # --- STAGE 6: Streamlit Interface Setup ---
 st.set_page_config(page_title="Pro Crypto Dashboard", layout="wide", initial_sidebar_state="expanded")
 
-# --- HIGH VISIBILITY GREEN GLASS CSS ---
+# --- HIGH VISIBILITY GREEN GLASS CSS & BUTTONS ---
 st.markdown("""
 <style>
-    /* 1. Main Background: Soft, clean mint-to-white gradient */
+    /* 1. Main Background */
     .stApp {
         background: linear-gradient(135deg, #d1fae5 0%, #f8fafc 100%);
     }
@@ -25,19 +25,19 @@ st.markdown("""
         border-right: 1px solid rgba(16, 185, 129, 0.3);
     }
     
-    /* 3. Global Text: FORCE HIGH-CONTRAST DARK GREEN */
+    /* 3. Global Text */
     html, body, [class*="st-"], .stMarkdown p, .stMarkdown span, label {
         color: #064e3b !important;
         font-weight: 500;
     }
     
-    /* 4. Headers: Vibrant Emerald Green */
+    /* 4. Headers */
     h1, h2, h3, h4, h5, h6 {
         color: #047857 !important; 
         font-weight: 800 !important;
     }
     
-    /* 5. Fix Input Boxes (Chat, Dropdowns, Sliders) */
+    /* 5. Inputs (Chat, Dropdowns) */
     .stTextInput input, .stSelectbox div[data-baseweb="select"], .stChatInput textarea {
         background-color: #ffffff !important;
         color: #064e3b !important;
@@ -60,6 +60,20 @@ st.markdown("""
     [data-testid="stMetricValue"] {
         color: #065f46 !important; 
         font-weight: 800 !important;
+    }
+    
+    /* 8. Quick Prompt Buttons */
+    .stButton button {
+        background-color: transparent !important;
+        color: #047857 !important;
+        border: 2px solid #34d399 !important;
+        border-radius: 20px !important;
+        font-weight: 600 !important;
+        transition: all 0.3s ease;
+    }
+    .stButton button:hover {
+        background-color: #34d399 !important;
+        color: white !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -160,7 +174,7 @@ if df is not None:
 
     with tab2:
         st.subheader("Stochastic Harmonic Market Model")
-        st.markdown(r"**Mathematical Formula:** $Price(t) = P_0 + (\mu \cdot t) + (A \cdot \sin(\omega t)) + (\sigma \cdot Z_t)$")
+        st.markdown("**Mathematical Formula:** Price(t) = P_0 + (μ * t) + (A * sin(ω * t)) + (σ * Z_t)")
         st.markdown("This professional quantitative model combines long-term drift, macro market wave cycles (Sine), and unpredictable daily market volatility (Random Noise).")
         
         t_sim = np.linspace(0, 100, 200) 
@@ -182,67 +196,90 @@ if df is not None:
                               xaxis_title='Days (t)', yaxis_title='Simulated Price ($)')
         st.plotly_chart(fig_sim, use_container_width=True)
 
-    # --- AI DATA ASSISTANT ---
+    # --- AI DATA ASSISTANT WITH QUICK PROMPTS ---
     with tab3:
         st.subheader("🤖 FinTechLab AI Analyst")
-        st.markdown("Consult with our advanced AI Quantitative Analyst regarding the current market data and mathematical models.")
-        
-        # Adding the 10 Professional Prompts
-        with st.expander("💡 View 10 Professional Prompt Suggestions", expanded=False):
-            st.markdown("""
-            **Market Analysis & Trends:**
-            1. *What is the overall price trend of the asset during this selected timeframe?*
-            2. *Based on the volatility swing (Max vs. Min price), how would you classify the current market risk?*
-            3. *What does the trading volume suggest about the current market sentiment?*
-            4. *Summarize the overall health of this market based on the provided metrics.*
-            5. *What are the potential support and resistance levels implied by the period high and low?*
-            
-            **Mathematical & Quantitative Concepts:**
-            6. *Can you explain the Stochastic Harmonic Market Model in simple terms for a client?*
-            7. *What is the difference between a stable macro drift and volatile random noise?*
-            8. *How does high frequency (cycle speed) impact trading strategies?*
-            9. *How should a risk-averse investor interpret high amplitude market swings?*
-            10. *Why do quantitative analysts use simulations for crypto assets?*
-            """)
+        st.markdown("Consult with our advanced AI Quantitative Analyst regarding the current market data.")
         
         if "GEMINI_API_KEY" in st.secrets:
             genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
             model = genai.GenerativeModel('gemini-1.5-flash')
             
-            # UPGRADED SYSTEM PROMPT FOR MAXIMUM PROFESSIONALISM
             data_context = f"""
             System Persona: You are a Senior Quantitative Analyst at FinTechLab Pvt. Ltd. 
-            Tone: Professional, precise, objective, and data-driven. Avoid emojis. Do not use overly casual language.
-            Context: You are advising a portfolio manager based on the following real-time dashboard data:
+            Tone: Professional, precise, objective, and data-driven. Avoid emojis. 
+            Context: Advise the user based on the following real-time dashboard data:
             - Current Asset Price: ${current_price:.2f}
             - Selected Period High: ${max_price:.2f}
             - Selected Period Low: ${min_price:.2f}
             - Volatility Swing (High - Low): ${volatility:.2f}
             - Data Points Analyzed: {days_to_show} days
-            
-            Instructions: Answer the user's query directly using this data. Provide structured, analytical insights. If they ask about mathematical models, explain them clearly but strictly as a financial professional.
             """
 
+            # Initialize chat history and prompt state
             if "messages" not in st.session_state:
                 st.session_state.messages = []
+            if "quick_prompt" not in st.session_state:
+                st.session_state.quick_prompt = None
 
+            # Render history
             for message in st.session_state.messages:
                 with st.chat_message(message["role"]):
                     st.markdown(message["content"])
 
-            if prompt := st.chat_input("E.g., What is the overall price trend of the asset during this timeframe?"):
-                st.session_state.messages.append({"role": "user", "content": prompt})
+            # Render Quick Prompts right above the search bar
+            if st.session_state.quick_prompt is None:
+                st.markdown("<br>", unsafe_allow_html=True)
+                st.markdown("**⚡ Quick Analysis Prompts:**")
+                
+                # Row 1 of Buttons
+                col1, col2, col3 = st.columns(3)
+                if col1.button("📈 Price Trend", use_container_width=True):
+                    st.session_state.quick_prompt = "What is the overall price trend of the asset during this timeframe?"
+                    st.rerun()
+                if col2.button("⚠️ Market Risk", use_container_width=True):
+                    st.session_state.quick_prompt = "Based on the volatility swing, how would you classify the current market risk?"
+                    st.rerun()
+                if col3.button("📊 Volume Sentiment", use_container_width=True):
+                    st.session_state.quick_prompt = "What does the trading volume suggest about the current market sentiment?"
+                    st.rerun()
+                
+                # Row 2 of Buttons
+                col4, col5, col6 = st.columns(3)
+                if col4.button("📉 Support/Resistance", use_container_width=True):
+                    st.session_state.quick_prompt = "What are the potential support and resistance levels implied by the period high and low?"
+                    st.rerun()
+                if col5.button("🧮 Explain Model", use_container_width=True):
+                    st.session_state.quick_prompt = "Can you explain the Stochastic Harmonic Market Model in simple terms?"
+                    st.rerun()
+                if col6.button("💼 Market Summary", use_container_width=True):
+                    st.session_state.quick_prompt = "Summarize the overall health of this market based on the provided metrics."
+                    st.rerun()
+
+            # Handle Input (Either from manual typing or quick button click)
+            user_input = st.chat_input("E.g., What is the price volatility?")
+            prompt_to_process = st.session_state.quick_prompt or user_input
+            
+            if prompt_to_process:
+                # Reset the button state immediately
+                st.session_state.quick_prompt = None
+                
+                st.session_state.messages.append({"role": "user", "content": prompt_to_process})
                 with st.chat_message("user"):
-                    st.markdown(prompt)
+                    st.markdown(prompt_to_process)
 
                 with st.chat_message("assistant"):
                     try:
-                        full_prompt = f"{data_context}\n\nUser Question: {prompt}"
+                        full_prompt = f"{data_context}\n\nUser Question: {prompt_to_process}"
                         response = model.generate_content(full_prompt)
                         st.markdown(response.text)
                         st.session_state.messages.append({"role": "assistant", "content": response.text})
                     except Exception as e:
                         st.error(f"Error communicating with AI: {e}")
+                
+                # Rerun to clear the quick buttons and scroll UI naturally
+                st.rerun()
+
         else:
             st.info("⚠️ Please add your GEMINI_API_KEY to your Streamlit secrets (.streamlit/secrets.toml) to enable the chatbot.")
 
