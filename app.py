@@ -89,7 +89,7 @@ def prepare_data(filepath):
     df = df.dropna().sort_values(by='Timestamp')
     return df
 
-df = prepare_data("crypto_data.xlsx") 
+df = prepare_data("crypto_data.xlsx.xlsx") 
 
 base_start_price = float(df['Price'].iloc[-1]) if df is not None else 50000.0
 
