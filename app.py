@@ -27,7 +27,7 @@ st.markdown("""
     
     /* 3. Global Text: FORCE HIGH-CONTRAST DARK GREEN */
     html, body, [class*="st-"], .stMarkdown p, .stMarkdown span, label {
-        color: #064e3b !important; /* Deep Forest Green */
+        color: #064e3b !important;
         font-weight: 500;
     }
     
@@ -40,8 +40,8 @@ st.markdown("""
     /* 5. Fix Input Boxes (Chat, Dropdowns, Sliders) */
     .stTextInput input, .stSelectbox div[data-baseweb="select"], .stChatInput textarea {
         background-color: #ffffff !important;
-        color: #064e3b !important; /* Dark Green typing text */
-        border: 2px solid #6ee7b7 !important; /* Light green border */
+        color: #064e3b !important;
+        border: 2px solid #6ee7b7 !important;
         border-radius: 8px !important;
         font-weight: bold;
     }
@@ -56,7 +56,7 @@ st.markdown("""
         color: #064e3b !important;
     }
     
-    /* 7. Metric Values (The big numbers) */
+    /* 7. Metric Values */
     [data-testid="stMetricValue"] {
         color: #065f46 !important; 
         font-weight: 800 !important;
@@ -89,23 +89,20 @@ def prepare_data(filepath):
     df = df.dropna().sort_values(by='Timestamp')
     return df
 
-# !!! Replace "crypto_data.xlsx" with your exact Excel file name !!!
-df = prepare_data("crypto_data.xlsx.xlsx") 
+df = prepare_data("crypto_data.xlsx") 
 
-# Retrieve initial dynamic base price if data exists, otherwise default to 50000
 base_start_price = float(df['Price'].iloc[-1]) if df is not None else 50000.0
 
 # --- SIDEBAR CONTROLS ---
 st.sidebar.header("🎛️ Dashboard Controls")
 
-# 1. Professional Math Simulation Controls
 with st.sidebar.expander("🧮 Quant Math Simulation", expanded=False):
     st.markdown("Configure the **Stochastic Harmonic Model**")
     base_price = st.number_input("Base Starting Price ($)", value=base_start_price)
-    drift = st.slider("Macro Trend (Drift)", -100.0, 100.0, 10.0, help="Long-term linear slope (Integral effect)")
-    wave_amp = st.slider("Market Cycle Swing (Sine Amp)", 0.0, 5000.0, 1000.0, help="Wave-like macro swings")
+    drift = st.slider("Macro Trend (Drift)", -100.0, 100.0, 10.0)
+    wave_amp = st.slider("Market Cycle Swing (Sine Amp)", 0.0, 5000.0, 1000.0)
     wave_freq = st.slider("Cycle Speed (Frequency)", 0.1, 5.0, 0.5)
-    noise_vol = st.slider("Daily Volatility (Random Noise)", 0.0, 2000.0, 500.0, help="Sudden unpredictable jumps")
+    noise_vol = st.slider("Daily Volatility (Random Noise)", 0.0, 2000.0, 500.0)
 
 if df is not None:
     st.sidebar.markdown("---")
@@ -127,16 +124,15 @@ if df is not None:
 
     st.markdown("---")
 
-    # Define a Glass layout template for Plotly Charts
     glass_chart_layout = dict(
         paper_bgcolor='rgba(255,255,255,0.6)', 
         plot_bgcolor='rgba(255,255,255,0.8)',  
-        font=dict(color='#064e3b'), # Dark Green text
+        font=dict(color='#064e3b'), 
         margin=dict(l=20, r=20, t=40, b=20)
     )
 
     # --- STAGE 5: Professional Visualizations ---
-    tab1, tab2, tab3 = st.tabs(["📊 Professional Charting", "🧮 Math Simulation", "🤖 AI Data Assistant"])
+    tab1, tab2, tab3 = st.tabs(["📊 Professional Charting", "🧮 Math Simulation", "🤖 AI Data Analyst"])
 
     with tab1:
         st.subheader("Bitcoin Candlestick Chart")
@@ -146,8 +142,8 @@ if df is not None:
                             high=subset_df['High'],
                             low=subset_df['Low'],
                             close=subset_df['Price'],
-                            increasing_line_color='#059669', # Solid Green
-                            decreasing_line_color='#ef4444')]) # Red for contrast
+                            increasing_line_color='#059669', 
+                            decreasing_line_color='#ef4444')]) 
             
             fig_candle.update_layout(**glass_chart_layout, title='Price Action', yaxis_title='Price (USD)', xaxis_title='Date')
             st.plotly_chart(fig_candle, use_container_width=True)
@@ -158,7 +154,7 @@ if df is not None:
         vol_col = 'Volume' if 'Volume' in subset_df.columns else 'Volume_(BTC)' if 'Volume_(BTC)' in subset_df.columns else None
         if vol_col:
             fig_vol = px.bar(subset_df, x='Timestamp', y=vol_col)
-            fig_vol.update_traces(marker_color='#10b981') # Bright Green
+            fig_vol.update_traces(marker_color='#10b981') 
             fig_vol.update_layout(**glass_chart_layout)
             st.plotly_chart(fig_vol, use_container_width=True)
 
@@ -167,23 +163,17 @@ if df is not None:
         st.markdown(r"**Mathematical Formula:** $Price(t) = P_0 + (\mu \cdot t) + (A \cdot \sin(\omega t)) + (\sigma \cdot Z_t)$")
         st.markdown("This professional quantitative model combines long-term drift, macro market wave cycles (Sine), and unpredictable daily market volatility (Random Noise).")
         
-        # Professional Math implementation integrating Sine, Drift, and Noise
-        t_sim = np.linspace(0, 100, 200) # Time vector
+        t_sim = np.linspace(0, 100, 200) 
         trend_component = drift * t_sim
         wave_component = wave_amp * np.sin(wave_freq * t_sim)
         noise_component = noise_vol * np.random.randn(200)
         
-        # Combine all mathematical elements
         simulated_prices = base_price + trend_component + wave_component + noise_component
         
-        # Plotting the professional simulation
         fig_sim = go.Figure()
-        
-        # The volatile raw price
         fig_sim.add_trace(go.Scatter(x=t_sim, y=simulated_prices, mode='lines', 
                                      name='Simulated Raw Price', line=dict(color='#34d399', width=1.5)))
         
-        # The underlying mathematical "True" trend (without noise)
         true_trend = base_price + trend_component + wave_component
         fig_sim.add_trace(go.Scatter(x=t_sim, y=true_trend, mode='lines', 
                                      name='Underlying Macro Wave', line=dict(color='#047857', width=3, dash='dash')))
@@ -194,19 +184,43 @@ if df is not None:
 
     # --- AI DATA ASSISTANT ---
     with tab3:
-        st.subheader("🤖 Ask Gemini About Your Data")
+        st.subheader("🤖 FinTechLab AI Analyst")
+        st.markdown("Consult with our advanced AI Quantitative Analyst regarding the current market data and mathematical models.")
+        
+        # Adding the 10 Professional Prompts
+        with st.expander("💡 View 10 Professional Prompt Suggestions", expanded=False):
+            st.markdown("""
+            **Market Analysis & Trends:**
+            1. *What is the overall price trend of the asset during this selected timeframe?*
+            2. *Based on the volatility swing (Max vs. Min price), how would you classify the current market risk?*
+            3. *What does the trading volume suggest about the current market sentiment?*
+            4. *Summarize the overall health of this market based on the provided metrics.*
+            5. *What are the potential support and resistance levels implied by the period high and low?*
+            
+            **Mathematical & Quantitative Concepts:**
+            6. *Can you explain the Stochastic Harmonic Market Model in simple terms for a client?*
+            7. *What is the difference between a stable macro drift and volatile random noise?*
+            8. *How does high frequency (cycle speed) impact trading strategies?*
+            9. *How should a risk-averse investor interpret high amplitude market swings?*
+            10. *Why do quantitative analysts use simulations for crypto assets?*
+            """)
         
         if "GEMINI_API_KEY" in st.secrets:
             genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
             model = genai.GenerativeModel('gemini-1.5-flash')
             
+            # UPGRADED SYSTEM PROMPT FOR MAXIMUM PROFESSIONALISM
             data_context = f"""
-            You are a professional crypto data analyst assistant. Here is the data summary:
-            - Current Price: ${current_price:.2f}
-            - Highest Price: ${max_price:.2f}
-            - Lowest Price: ${min_price:.2f}
-            - Volatility (Max - Min): ${volatility:.2f}
-            Use this to answer the user accurately. Keep your tone highly professional.
+            System Persona: You are a Senior Quantitative Analyst at FinTechLab Pvt. Ltd. 
+            Tone: Professional, precise, objective, and data-driven. Avoid emojis. Do not use overly casual language.
+            Context: You are advising a portfolio manager based on the following real-time dashboard data:
+            - Current Asset Price: ${current_price:.2f}
+            - Selected Period High: ${max_price:.2f}
+            - Selected Period Low: ${min_price:.2f}
+            - Volatility Swing (High - Low): ${volatility:.2f}
+            - Data Points Analyzed: {days_to_show} days
+            
+            Instructions: Answer the user's query directly using this data. Provide structured, analytical insights. If they ask about mathematical models, explain them clearly but strictly as a financial professional.
             """
 
             if "messages" not in st.session_state:
@@ -216,7 +230,7 @@ if df is not None:
                 with st.chat_message(message["role"]):
                     st.markdown(message["content"])
 
-            if prompt := st.chat_input("E.g., Based on the volatility, what is the current market risk?"):
+            if prompt := st.chat_input("E.g., What is the overall price trend of the asset during this timeframe?"):
                 st.session_state.messages.append({"role": "user", "content": prompt})
                 with st.chat_message("user"):
                     st.markdown(prompt)
