@@ -90,7 +90,7 @@ def prepare_data(filepath):
     return df
 
 # !!! Replace "crypto_data.xlsx" with your exact Excel file name !!!
-df = prepare_data("crypto_data.xlsx") 
+df = prepare_data("crypto_data.xlsx.xlsx") 
 
 # Retrieve initial dynamic base price if data exists, otherwise default to 50000
 base_start_price = float(df['Price'].iloc[-1]) if df is not None else 50000.0
