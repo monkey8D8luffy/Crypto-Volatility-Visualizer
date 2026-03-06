@@ -72,7 +72,7 @@ def prepare_data(filepath):
     return df
 
 # !!! IMPORTANT: Replace this string with the exact name of your new Excel file !!!
-df = prepare_data("crypto_data.csv.xlsx") 
+df = prepare_data("crypto_data.xlsx.xlsx") 
 
 if df is not None:
     # 5. Always check the dataset shape (rows × columns) 
