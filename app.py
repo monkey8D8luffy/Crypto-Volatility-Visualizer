@@ -9,26 +9,37 @@ import os
 # --- STAGE 6: Streamlit Interface & Glass UI Setup ---
 st.set_page_config(page_title="Pro Crypto Dashboard", layout="wide", initial_sidebar_state="expanded")
 
-# Custom CSS for Glassmorphism (Clear Glass OS UI)
+# Custom CSS for HIGH VISIBILITY Glassmorphism 
 st.markdown("""
 <style>
-    /* Main background */
+    /* Main background: Clean white/light gray gradient */
     .stApp {
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     }
     
-    /* Glassmorphism effect for sidebar */
+    /* Force base text colors to be dark so they don't turn invisible in Dark Mode */
+    html, body, [class*="st-"] {
+        color: #1e293b !important; 
+    }
+    
+    /* Glassmorphism effect for sidebar: More opaque for readable text */
     [data-testid="stSidebar"] {
-        background: rgba(255, 255, 255, 0.4) !important;
-        backdrop-filter: blur(10px) !important;
-        -webkit-backdrop-filter: blur(10px) !important;
-        border-right: 1px solid rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.85) !important;
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        border-right: 1px solid rgba(226, 232, 240, 0.8);
     }
     
-    /* Title styling */
+    /* Title and Header styling: Deep Blue */
     h1, h2, h3 {
-        color: #1E3A8A !important; /* Deep Blue */
-        font-family: 'Helvetica Neue', sans-serif;
+        color: #1e3a8a !important; 
+        font-weight: 600 !important;
+    }
+    
+    /* Metric boxes readability */
+    [data-testid="stMetricValue"] {
+        color: #0f172a !important; 
+        font-weight: 700 !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -67,8 +78,8 @@ def prepare_data(filepath):
     df = df.dropna().sort_values(by='Timestamp')
     return df
 
-# Make sure this matches your exact file name!
-df = prepare_data("crypto_data.xlsx.xlsx") 
+# !!! Replace with your exact file name !!!
+df = prepare_data("crypto_data.xlsx") 
 
 if df is not None:
     st.sidebar.markdown("---")
@@ -76,7 +87,7 @@ if df is not None:
     days_to_show = st.sidebar.slider("Data points to analyze", 10, len(df), min(500, len(df)))
     subset_df = df.tail(days_to_show)
 
-    # Key Metrics Row (Glass styled metrics)
+    # Key Metrics Row 
     col1, col2, col3, col4 = st.columns(4)
     current_price = subset_df['Price'].iloc[-1]
     max_price = subset_df['High'].max()
@@ -91,36 +102,38 @@ if df is not None:
     st.markdown("---")
 
     # --- STAGE 5: Professional Visualizations ---
-    # Layout using tabs for a clean UI
     tab1, tab2, tab3 = st.tabs(["📊 Professional Charting", "🧮 Math Simulation", "🤖 AI Data Assistant"])
+
+    # Define a high-visibility chart layout template
+    chart_layout = dict(
+        paper_bgcolor='rgba(255,255,255,0.9)', # Solid white frosted background for the chart area
+        plot_bgcolor='rgba(248,250,252,1)',    # Very light gray for the actual plotting area
+        font=dict(color='#0f172a'),            # Dark blue/black text for axes and titles
+        margin=dict(l=20, r=20, t=40, b=20)
+    )
 
     with tab1:
         st.subheader("Bitcoin Candlestick Chart (Professional)")
-        # Professional Candlestick Chart (Uses Green for up, Red for down)
         if all(col in subset_df.columns for col in ['Open', 'High', 'Low', 'Price']):
             fig_candle = go.Figure(data=[go.Candlestick(x=subset_df['Timestamp'],
                             open=subset_df['Open'],
                             high=subset_df['High'],
                             low=subset_df['Low'],
                             close=subset_df['Price'],
-                            increasing_line_color='green', decreasing_line_color='red')])
+                            increasing_line_color='#10b981', # Bright Green
+                            decreasing_line_color='#ef4444')]) # Bright Red
             
-            fig_candle.update_layout(
-                paper_bgcolor='rgba(0,0,0,0)', 
-                plot_bgcolor='rgba(255,255,255,0.5)', # Glass effect
-                title='Price Action', yaxis_title='Price (USD)', xaxis_title='Date'
-            )
+            fig_candle.update_layout(**chart_layout, title='Price Action', yaxis_title='Price (USD)', xaxis_title='Date')
             st.plotly_chart(fig_candle, use_container_width=True)
         else:
             st.warning("Need Open, High, Low, and Close/Price columns for Candlestick chart.")
 
-        # Volume Chart (Blue)
         st.subheader("Trading Volume Analysis")
         vol_col = 'Volume' if 'Volume' in subset_df.columns else 'Volume_(BTC)' if 'Volume_(BTC)' in subset_df.columns else None
         if vol_col:
             fig_vol = px.bar(subset_df, x='Timestamp', y=vol_col)
-            fig_vol.update_traces(marker_color='#3B82F6') # Blue color
-            fig_vol.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(255,255,255,0.5)')
+            fig_vol.update_traces(marker_color='#3b82f6') # Bright Blue
+            fig_vol.update_layout(**chart_layout)
             st.plotly_chart(fig_vol, use_container_width=True)
 
     with tab2:
@@ -128,27 +141,25 @@ if df is not None:
         x_sim = np.linspace(0, 10, 100)
         if pattern == "Sine Wave (Stable)":
             y_sim = amplitude * np.sin(frequency * x_sim) + (drift * x_sim)
-            color = 'green'
+            color = '#10b981' # Green
         else:
             y_sim = amplitude * np.random.randn(100) * frequency + (drift * x_sim)
-            color = 'red'
+            color = '#ef4444' # Red
 
         sim_fig = px.line(x=x_sim, y=y_sim, title=f"Simulated {pattern}")
         sim_fig.update_traces(line_color=color)
-        sim_fig.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(255,255,255,0.5)')
+        sim_fig.update_layout(**chart_layout)
         st.plotly_chart(sim_fig, use_container_width=True)
 
-    # --- NEW FEATURE: AI DATA ASSISTANT ---
+    # --- AI DATA ASSISTANT ---
     with tab3:
         st.subheader("🤖 Ask Gemini About Your Data")
         st.markdown("Ask anything about the trends, volatility, or current stats of the chart.")
         
-        # Check if API key is in secrets
         if "GEMINI_API_KEY" in st.secrets:
             genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
             model = genai.GenerativeModel('gemini-1.5-flash')
             
-            # Prepare context about the data to feed to the AI
             data_context = f"""
             You are a crypto data analyst assistant. Here is the data summary for the currently selected timeframe:
             - Current Price: ${current_price:.2f}
@@ -159,23 +170,18 @@ if df is not None:
             Use this data to answer the user's questions accurately.
             """
 
-            # Initialize chat history
             if "messages" not in st.session_state:
                 st.session_state.messages = []
 
-            # Display chat messages from history
             for message in st.session_state.messages:
                 with st.chat_message(message["role"]):
                     st.markdown(message["content"])
 
-            # Accept user input
             if prompt := st.chat_input("E.g., What is the price volatility?"):
-                # Add user message to chat history
                 st.session_state.messages.append({"role": "user", "content": prompt})
                 with st.chat_message("user"):
                     st.markdown(prompt)
 
-                # Get AI response
                 with st.chat_message("assistant"):
                     try:
                         full_prompt = f"{data_context}\n\nUser Question: {prompt}"
@@ -185,7 +191,7 @@ if df is not None:
                     except Exception as e:
                         st.error(f"Error communicating with AI: {e}")
         else:
-            st.warning("⚠️ Please add your GEMINI_API_KEY to your Streamlit secrets to enable the chatbot.")
+            st.info("⚠️ Please add your GEMINI_API_KEY to your Streamlit secrets (.streamlit/secrets.toml) to enable the chatbot.")
 
 else:
     st.error("⚠️ Please check the file name in the code. Ensure your Excel file is in the same folder as this app.")
