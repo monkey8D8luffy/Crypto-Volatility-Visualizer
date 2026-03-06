@@ -9,9 +9,9 @@
 
 The **Crypto Volatility Visualizer** is an interactive, web-based quantitative dashboard designed to analyze and simulate cryptocurrency price movements. [cite_start]Built for the *Mathematics for AI-II* coursework, this project bridges the gap between historical financial data and theoretical mathematical modeling.
 
-🔗 **[Live Demo: View the Dashboard on Streamlit Cloud](INSERT_YOUR_STREAMLIT_URL_HERE)**
 
----
+
+
 
 ## ✨ Key Features
 
@@ -21,7 +21,7 @@ The **Crypto Volatility Visualizer** is an interactive, web-based quantitative d
 * **🤖 AI Quantitative Analyst:** Integrated Google Gemini AI that reads live dashboard metrics and provides context-aware financial analysis via 1-click professional prompts.
 * **💎 Glassmorphism UI:** A sleek, high-visibility green-themed interface optimized for a premium user experience.
 
----
+
 
 ## 📐 The Mathematics Behind the Simulation
 
@@ -34,7 +34,7 @@ $$Price(t) = P_0 + (\mu \cdot t) + (A \cdot \sin(\omega t)) + (\sigma \cdot Z_t)
 * **$A \cdot \sin(\omega t)$ (Harmonic Waves):** Trigonometry simulating repeating economic cycles. Amplitude ($A$) controls swing size; [cite_start]Frequency ($\omega$) controls cycle speed[cite: 2, 6].
 * [cite_start]**$\sigma \cdot Z_t$ (Random Noise):** Statistical probability representing sudden, unpredictable daily market shocks[cite: 2, 6].
 
----
+
 
 ## 🚀 Installation & Local Setup
 
