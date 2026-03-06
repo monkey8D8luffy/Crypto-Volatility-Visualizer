@@ -68,7 +68,7 @@ def prepare_data(filepath):
     return df
 
 # Make sure this matches your exact file name!
-df = prepare_data("crypto_data.xlsx") 
+df = prepare_data("crypto_data.xlsx.xlsx") 
 
 if df is not None:
     st.sidebar.markdown("---")
