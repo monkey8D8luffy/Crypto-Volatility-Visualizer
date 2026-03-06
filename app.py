@@ -6,69 +6,22 @@ import numpy as np
 import google.generativeai as genai
 import os
 
-# --- STAGE 6: Streamlit Interface & Safe Glass UI Setup ---
-st.set_page_config(page_title="Pro Crypto Dashboard", layout="wide", initial_sidebar_state="expanded")
+# --- STAGE 6: Streamlit Interface Setup ---
+st.set_page_config(page_title="Pro Crypto Dashboard", layout="wide")
 
-# Custom CSS for SAFE HIGH-VISIBILITY Glassmorphism 
-st.markdown("""
-<style>
-    /* Clean white/light gray background */
-    .stApp {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    }
-    
-    /* Glassmorphism sidebar - frosted but readable */
-    [data-testid="stSidebar"] {
-        background: rgba(255, 255, 255, 0.65) !important;
-        backdrop-filter: blur(16px) !important;
-        -webkit-backdrop-filter: blur(16px) !important;
-        border-right: 1px solid rgba(255, 255, 255, 0.5);
-    }
-    
-    /* Explicitly make standard text dark */
-    p, span, div, label {
-        color: #1e293b !important;
-    }
-    
-    /* Make Headers Deep Blue */
-    h1, h2, h3 {
-        color: #1e3a8a !important; 
-        font-weight: 600 !important;
-    }
-    
-    /* Fix Input Boxes (Like the Chatbot input and Dropdowns) so you can see what you type */
-    .stTextInput input, .stSelectbox div[data-baseweb="select"], .stChatInput textarea {
-        background-color: #ffffff !important;
-        color: #0f172a !important;
-        border: 1px solid #cbd5e1 !important;
-        border-radius: 8px !important;
-    }
-    
-    /* Fix Chat Messages background so AI responses are readable */
-    [data-testid="stChatMessage"] {
-        background-color: rgba(255, 255, 255, 0.7);
-        border-radius: 10px;
-        padding: 10px;
-        margin-bottom: 10px;
-    }
-    
-    /* Fix Metric Values (The big numbers) */
-    [data-testid="stMetricValue"] {
-        color: #0f172a !important; 
-        font-weight: 700 !important;
-    }
-</style>
-""", unsafe_allow_html=True)
+st.title("💠 Pro Crypto Volatility Visualizer")
+st.markdown("Analyze market swings with professional tools and AI insights.")
+st.markdown("---")
 
 # --- SIDEBAR CONTROLS ---
 st.sidebar.header("🎛️ Dashboard Controls")
 
 # 1. Math Simulation Controls
-with st.sidebar.expander("1. Math Simulation", expanded=False):
+with st.sidebar.expander("1. Math Simulation Controls", expanded=False):
     pattern = st.selectbox("Choose Pattern", ["Sine Wave (Stable)", "Random Noise (Volatile)"])
-    amplitude = st.slider("Amplitude (Swing Size)", 1.0, 50.0, 10.0)
-    frequency = st.slider("Frequency (Swing Speed)", 0.1, 5.0, 1.0)
-    drift = st.slider("Drift (Long-term slope)", -2.0, 2.0, 0.0)
+    amplitude = st.sidebar.slider("Amplitude (Swing Size)", 1.0, 50.0, 10.0)
+    frequency = st.sidebar.slider("Frequency (Swing Speed)", 0.1, 5.0, 1.0)
+    drift = st.sidebar.slider("Drift (Long-term slope)", -2.0, 2.0, 0.0)
 
 # --- STAGE 4: Data Preparation ---
 @st.cache_data
@@ -91,8 +44,8 @@ def prepare_data(filepath):
     df = df.dropna().sort_values(by='Timestamp')
     return df
 
-# !!! Replace with your exact file name !!!
-df = prepare_data("crypto_data.xlsx.xlsx") 
+# !!! Replace "crypto_data.xlsx" with your exact Excel file name !!!
+df = prepare_data("crypto_data.xlsx") 
 
 if df is not None:
     st.sidebar.markdown("---")
@@ -100,7 +53,7 @@ if df is not None:
     days_to_show = st.sidebar.slider("Data points to analyze", 10, len(df), min(500, len(df)))
     subset_df = df.tail(days_to_show)
 
-    # Key Metrics Row 
+    # Key Metrics Row (Native Streamlit styling - always visible)
     col1, col2, col3, col4 = st.columns(4)
     current_price = subset_df['Price'].iloc[-1]
     max_price = subset_df['High'].max()
@@ -117,14 +70,6 @@ if df is not None:
     # --- STAGE 5: Professional Visualizations ---
     tab1, tab2, tab3 = st.tabs(["📊 Professional Charting", "🧮 Math Simulation", "🤖 AI Data Assistant"])
 
-    # Define a high-visibility chart layout template
-    chart_layout = dict(
-        paper_bgcolor='rgba(255,255,255,0.9)', # Solid white frosted background for the chart area
-        plot_bgcolor='rgba(248,250,252,1)',    # Very light gray for the actual plotting area
-        font=dict(color='#0f172a'),            # Dark blue/black text for axes and titles
-        margin=dict(l=20, r=20, t=40, b=20)
-    )
-
     with tab1:
         st.subheader("Bitcoin Candlestick Chart (Professional)")
         if all(col in subset_df.columns for col in ['Open', 'High', 'Low', 'Price']):
@@ -133,10 +78,11 @@ if df is not None:
                             high=subset_df['High'],
                             low=subset_df['Low'],
                             close=subset_df['Price'],
-                            increasing_line_color='#10b981', # Bright Green
-                            decreasing_line_color='#ef4444')]) # Bright Red
+                            increasing_line_color='#10b981', # Green
+                            decreasing_line_color='#ef4444')]) # Red
             
-            fig_candle.update_layout(**chart_layout, title='Price Action', yaxis_title='Price (USD)', xaxis_title='Date')
+            # Using plotly_white guarantees visibility!
+            fig_candle.update_layout(template="plotly_white", title='Price Action', yaxis_title='Price (USD)', xaxis_title='Date')
             st.plotly_chart(fig_candle, use_container_width=True)
         else:
             st.warning("Need Open, High, Low, and Close/Price columns for Candlestick chart.")
@@ -145,8 +91,8 @@ if df is not None:
         vol_col = 'Volume' if 'Volume' in subset_df.columns else 'Volume_(BTC)' if 'Volume_(BTC)' in subset_df.columns else None
         if vol_col:
             fig_vol = px.bar(subset_df, x='Timestamp', y=vol_col)
-            fig_vol.update_traces(marker_color='#3b82f6') # Bright Blue
-            fig_vol.update_layout(**chart_layout)
+            fig_vol.update_traces(marker_color='#3b82f6') # Blue
+            fig_vol.update_layout(template="plotly_white")
             st.plotly_chart(fig_vol, use_container_width=True)
 
     with tab2:
@@ -161,7 +107,7 @@ if df is not None:
 
         sim_fig = px.line(x=x_sim, y=y_sim, title=f"Simulated {pattern}")
         sim_fig.update_traces(line_color=color)
-        sim_fig.update_layout(**chart_layout)
+        sim_fig.update_layout(template="plotly_white")
         st.plotly_chart(sim_fig, use_container_width=True)
 
     # --- AI DATA ASSISTANT ---
@@ -204,7 +150,7 @@ if df is not None:
                     except Exception as e:
                         st.error(f"Error communicating with AI: {e}")
         else:
-            st.info("⚠️ Please add your GEMINI_API_KEY to your Streamlit secrets (.streamlit/secrets.toml) to enable the chatbot.")
+            st.info("⚠️ Please add your GEMINI_API_KEY to your Streamlit secrets to enable the chatbot.")
 
 else:
     st.error("⚠️ Please check the file name in the code. Ensure your Excel file is in the same folder as this app.")
