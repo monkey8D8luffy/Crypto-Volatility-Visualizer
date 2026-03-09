@@ -36,11 +36,4 @@ $$Price(t) = P_0 + (\mu \cdot t) + (A \cdot \sin(\omega t)) + (\sigma \cdot Z_t)
 
 
 
-## 🚀 Installation & Local Setup
 
-To run this dashboard locally on your machine, follow these steps:
-
-### 1. Clone the Repository
-```bash
-git clone [https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPOSITORY_NAME.git](https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPOSITORY_NAME.git)
-cd YOUR_REPOSITORY_NAME
